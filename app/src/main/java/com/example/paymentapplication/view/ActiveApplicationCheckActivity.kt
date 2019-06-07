@@ -6,6 +6,7 @@ import android.os.Handler
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.paymentapplication.R
+import com.example.paymentapplication.infrastructure.AppStore
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenter
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenterImpl
 import kotlinx.android.synthetic.main.activity_active_application_check.*
@@ -14,7 +15,6 @@ import stone.providers.ActiveApplicationProvider
 import stone.user.UserModel
 import stone.utils.Stone
 import stone.environment.Environment.SANDBOX
-
 
 class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationCheckView {
 
@@ -60,6 +60,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
     }
 
     override fun applicationActivatedNextStep() {
+        AppStore.map["USER_LIST"] = userList
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }

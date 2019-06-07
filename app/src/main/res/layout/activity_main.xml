@@ -6,14 +6,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".view.MainActivity">
-
-    <TextView
+    <RadioGroup
+            android:layout_width="141dp"
+            android:layout_height="0dp"
+            android:id="@+id/radioGroup" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginStart="27dp"
+            app:layout_constraintTop_toBottomOf="@+id/editText" android:layout_marginBottom="316dp">
+        <RadioButton
+                android:text="Credit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonCredit" android:layout_weight="1"/>
+        <RadioButton
+                android:text="Debit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonDebit" android:layout_weight="1"/>
+        <RadioButton
+                android:text="Voucher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonVoucher" android:layout_weight="1"/>
+    </RadioGroup>
+    <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:hint="@string/hint_start_value"
+            android:id="@+id/editText"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:textAlignment="textEnd"
+            android:textSize="30sp" android:selectAllOnFocus="true"
+            android:gravity="end" android:layout_marginBottom="23dp"
+            app:layout_constraintBottom_toTopOf="@+id/radioGroup"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
