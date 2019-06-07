@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Payment Application</string>
+    <string name="title_activity_active_application_check">ActiveApplicationCheckActivity</string>
+    <string name="active_app_text">Ativando o aplicativo.</string>
+</resources>
