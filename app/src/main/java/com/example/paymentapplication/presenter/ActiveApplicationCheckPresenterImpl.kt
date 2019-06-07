@@ -3,28 +3,21 @@ package com.example.paymentapplication.presenter
 import com.example.paymentapplication.view.ActiveApplicationCheckView
 import stone.application.interfaces.StoneCallbackInterface
 import stone.providers.ActiveApplicationProvider
-import stone.user.UserModel
 
 class ActiveApplicationCheckPresenterImpl(
     override var view: ActiveApplicationCheckView?
 ) : ActiveApplicationCheckPresenter<ActiveApplicationCheckView> {
 
-    override fun handleListData(list: List<UserModel>) {
-        view?.showMessage("ativado anteriormente.")
-    }
-
-    override fun handleEmptyListData(activeApplicationProvider: ActiveApplicationProvider) {
+    override fun activeInvoke(activeApplicationProvider: ActiveApplicationProvider) {
         activeApplicationProvider.connectionCallback = object : StoneCallbackInterface {
             override fun onSuccess() {
-                view?.showMessage("Ativado com sucesso, iniciando o aplicativo.",
-                    withoutProgress = true)
+                view?.showMessageSuccessAndNextStep(
+                    "Ativado com sucesso, \niniciando o aplicativo.",
+                    withNextStep = { view?.applicationActivatedNextStep() })
             }
 
             override fun onError() {
-                view?.showMessage("Erro na ativação do aplicativo, verifique a lista de erros do provide.",
-                    withoutProgress = true)
-                //view?.dismissProgress()
-                activeApplicationProvider.listOfErrors
+                view?.showMessage("Erro na ativação do aplicativo, \nverifique a lista de erros do provide.")
             }
         }
 

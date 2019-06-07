@@ -1,5 +1,6 @@
 package com.example.paymentapplication.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
@@ -32,21 +33,34 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
         Stone.setAppName(getString(R.string.app_name))
 
         userList?.let {
-            activeApplicationCheckPresenter.handleListData(it)
-        } ?: activeApplicationCheckPresenter.handleEmptyListData(ActiveApplicationProvider(this))
+            applicationActivatedNextStep()
+        } ?: activeApplicationCheckPresenter.activeInvoke(ActiveApplicationProvider(this))
     }
 
     override fun showProgress() {
         progress.visibility = View.VISIBLE
     }
 
-    override fun showMessage(msg: String, time: Long, withoutProgress: Boolean) {
+    override fun showMessageSuccessAndNextStep(
+        msg: String,
+        time: Long,
+        withProgress: Boolean,
+        withNextStep: () -> Unit
+    ) {
+        showMessage(msg, withProgress)
         Handler().postDelayed({
-            textView.visibility = View.VISIBLE
-            textView.text = msg
-            if (withoutProgress) progress.visibility = View.GONE
+            withNextStep()
         }, time)
-
     }
 
+    override fun showMessage(msg: String, withProgress: Boolean) {
+        if (withProgress) progress.visibility = View.VISIBLE else View.GONE
+        textView.visibility = View.VISIBLE
+        textView.text = msg
+    }
+
+    override fun applicationActivatedNextStep() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
 }

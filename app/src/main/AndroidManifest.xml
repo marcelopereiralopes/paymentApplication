@@ -11,6 +11,7 @@
             android:theme="@style/AppTheme" tools:ignore="GoogleAppIndexingWarning">
         <activity
                 android:name=".view.ActiveApplicationCheckActivity"
+                android:noHistory="true"
                 android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
