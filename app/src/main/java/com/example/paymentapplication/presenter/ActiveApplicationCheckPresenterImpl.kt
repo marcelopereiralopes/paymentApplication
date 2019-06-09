@@ -17,7 +17,8 @@ class ActiveApplicationCheckPresenterImpl(
             }
 
             override fun onError() {
-                view?.showMessage("Erro na ativação do aplicativo, \nverifique a lista de erros do provide.")
+                val cause = activeApplicationProvider.listOfErrors[0]
+                view?.showMessage("Erro na ativação do aplicativo.\n$cause")
             }
         }
 

@@ -54,7 +54,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
     }
 
     override fun showMessage(msg: String, withProgress: Boolean) {
-        if (withProgress) progress.visibility = View.VISIBLE else View.GONE
+        if (withProgress) progress.visibility = View.VISIBLE else progress.visibility = View.GONE
         textView.visibility = View.VISIBLE
         textView.text = msg
     }
