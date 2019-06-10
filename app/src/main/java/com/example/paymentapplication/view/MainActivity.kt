@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.example.paymentapplication.R
 import com.example.paymentapplication.presenter.MainPresenter
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
                 mainPresenter.checkout(amount = amount, typeOfTransactionEnum = typeOfTransactionEnum)
             } else {
-                Toast.makeText(this, "Invalid input value.", Toast.LENGTH_SHORT).show()
+                showMessage("Invalid input value.")
             }
         }
     }
@@ -61,12 +62,24 @@ class MainActivity : AppCompatActivity(), MainView {
                     bondedDevices.elementAt(0).address, true)
                 mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinPadObject))
             } else {
-                Toast.makeText(this, "Please, first pair your PINPad with your Android phone.", Toast.LENGTH_SHORT).show()
+                showMessage("Please, first pair your PINPad with your Android phone.")
             }
         } else {
             throw IllegalArgumentException()
         }
 
         return true
+    }
+
+    override fun showProgress() {
+        progressBar.visibility = View.VISIBLE
+    }
+
+    override fun dimissProgress() {
+        progressBar.visibility = View.GONE
+    }
+
+    override fun showMessage(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

@@ -11,17 +11,21 @@ class MainPresenterImpl(override var view: MainView?) : MainPresenter<MainView> 
     }
 
     override fun connectPINPad(bluetoothConnectionProvider: BluetoothConnectionProvider) {
+        view?.showProgress()
         bluetoothConnectionProvider.useDefaultUI(false)
         bluetoothConnectionProvider.connectionCallback = object : StoneCallbackInterface{
             override fun onSuccess() {
-
+                view?.dimissProgress()
+                view?.showMessage("Pinpad connected.")
             }
 
             override fun onError() {
-
+                view?.dimissProgress()
+                view?.showMessage(bluetoothConnectionProvider.listOfErrors[0].toString())
             }
 
         }
+
         bluetoothConnectionProvider.execute()
     }
 }
