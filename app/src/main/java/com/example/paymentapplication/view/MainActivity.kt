@@ -1,11 +1,13 @@
 package com.example.paymentapplication.view
 
 import android.bluetooth.BluetoothAdapter
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.paymentapplication.R
 import com.example.paymentapplication.infrastructure.AppStore
@@ -13,9 +15,11 @@ import com.example.paymentapplication.presenter.MainPresenter
 import com.example.paymentapplication.presenter.MainPresenterImpl
 import kotlinx.android.synthetic.main.activity_main.*
 import stone.application.enums.InstalmentTransactionEnum
+import stone.application.enums.TransactionStatusEnum
 import stone.application.enums.TypeOfTransactionEnum
 import stone.database.transaction.TransactionObject
 import stone.providers.BluetoothConnectionProvider
+import stone.providers.SendEmailTransactionProvider
 import stone.providers.TransactionProvider
 import stone.user.UserModel
 import stone.utils.PinpadObject
@@ -28,6 +32,7 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     private var pinpadObject: PinpadObject? = null
+    private var transactionObject: TransactionObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,13 +59,16 @@ class MainActivity : AppCompatActivity(), MainView {
                         else -> throw IllegalArgumentException()
                     }
 
+                    transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
+
                     val provider = TransactionProvider(
                         this, createTransactionObject(typeOfTransactionEnum, amount),
-                        (AppStore.instance["USER_LIST"] as List<UserModel>?)?.get(0), it)
+                        (AppStore.instance["USER_LIST"] as List<UserModel>?)?.get(0), it
+                    )
 
                     mainPresenter.checkout(
                         amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
-                        transactionProvider = provider
+                        provider = provider
                     )
                 } ?: showMessage("Pair your PINPad with your mobile phone")
             } else {
@@ -95,7 +103,7 @@ class MainActivity : AppCompatActivity(), MainView {
         progressBar.visibility = View.VISIBLE
     }
 
-    override fun dimissProgress() {
+    override fun dismissProgress() {
         checkout.isEnabled = true
         radioGroup.isEnabled = true
         value.isEnabled = true
@@ -104,6 +112,20 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun showMessage(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showDialogSendEmail() {
+        val dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setMessage("Do you want to send client receipt?")
+            .setCancelable(true)
+            .setTitle("Transaction Approved")
+            .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
+                transactionObject!!.transactionStatus = TransactionStatusEnum.APPROVED
+                val sendEmailTransactionProvider = SendEmailTransactionProvider(this, transactionObject!!)
+                mainPresenter.sendReceiptByEmail(sendEmailTransactionProvider) })
+            .setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, _ -> dialogInterface.cancel() })
+            .create()
+            .show()
     }
 
     private fun createTransactionObject(typeOfTransactionEnum: TypeOfTransactionEnum, amount: Long): TransactionObject {
