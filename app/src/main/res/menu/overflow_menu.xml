@@ -8,5 +8,10 @@
             android:id="@+id/connectId"
             android:orderInCategory="1"
             app:showAsAction="never"
-            android:title="@string/connectPINPad"/>
+            android:title="@string/connect_PINPad"/>
+    <item
+            android:id="@+id/refundId"
+            android:orderInCategory="1"
+            app:showAsAction="never"
+            android:title="@string/refund"/>
 </menu>

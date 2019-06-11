@@ -15,10 +15,10 @@ import com.example.paymentapplication.presenter.MainPresenter
 import com.example.paymentapplication.presenter.MainPresenterImpl
 import kotlinx.android.synthetic.main.activity_main.*
 import stone.application.enums.InstalmentTransactionEnum
-import stone.application.enums.TransactionStatusEnum
 import stone.application.enums.TypeOfTransactionEnum
 import stone.database.transaction.TransactionObject
 import stone.providers.BluetoothConnectionProvider
+import stone.providers.CancellationProvider
 import stone.providers.SendEmailTransactionProvider
 import stone.providers.TransactionProvider
 import stone.user.UserModel
@@ -54,21 +54,34 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId == R.id.connectId) {
+        when {
+            item.itemId == R.id.connectId -> {
 
-            if (pinpadObject == null) {
-                val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                val bondedDevices = bluetoothAdapter.bondedDevices
-                if (bondedDevices.isNotEmpty()) {
-                    pinpadObject = PinpadObject(
-                        "PAX-6A802929",
-                        bondedDevices.elementAt(0).address, true
-                    )
+                if (pinpadObject == null) {
+                    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+                    val bondedDevices = bluetoothAdapter.bondedDevices
+                    if (bondedDevices.isNotEmpty()) {
+                        pinpadObject = PinpadObject(
+                            "PAX-6A802929",
+                            bondedDevices.elementAt(0).address, true
+                        )
+                    }
                 }
+                mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinpadObject))
             }
-            mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinpadObject))
-        } else {
-            throw IllegalArgumentException()
+
+            item.itemId == R.id.refundId -> {
+                AppStore["TRANSACTION_OBJECT"]?.let {
+                    showAlertDialog(
+                        "Do you want refund this vendor?\nValue: ${transactionObject?.amount}",
+                        "Refund"
+                    ) {
+                        refundClickListener()
+                    }
+                } ?: showMessage("Not exist approved transaction.")
+            }
+
+            else -> throw IllegalArgumentException()
         }
 
         return true
@@ -92,18 +105,37 @@ class MainActivity : AppCompatActivity(), MainView {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    override fun showDialogSendEmail() {
+    override fun showAlertDialog(message: String, title: String, positiveButton: () -> Unit) {
         val dialogBuilder = AlertDialog.Builder(this)
-        dialogBuilder.setMessage("Do you want to send client receipt?")
+        dialogBuilder.setMessage(message)
             .setCancelable(true)
-            .setTitle("Transaction Approved")
-            .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
-                transactionObject!!.transactionStatus = TransactionStatusEnum.APPROVED
-                val sendEmailTransactionProvider = SendEmailTransactionProvider(this, transactionObject!!)
-                mainPresenter.sendReceiptByEmail(sendEmailTransactionProvider) })
+            .setTitle(title)
+            .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ -> positiveButton() })
             .setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, _ -> dialogInterface.cancel() })
             .create()
             .show()
+    }
+
+    override fun showReceiptOptions() {
+        showAlertDialog("Do you want send receipt?", "Receipt"){
+            receiptEmailClickListener()
+        }
+    }
+
+    private fun receiptEmailClickListener() {
+        val sendEmailTransactionProvider = SendEmailTransactionProvider(
+            this,
+            AppStore["TRANSACTION_OBJECT"] as TransactionObject
+        )
+        mainPresenter.sendReceiptByEmail(sendEmailTransactionProvider)
+    }
+
+    private fun refundClickListener() {
+        val cancellationProvider = CancellationProvider(
+            this,
+            AppStore["TRANSACTION_OBJECT"] as TransactionObject
+        )
+        mainPresenter.refund(cancellationProvider)
     }
 
     private fun checkoutListener() {

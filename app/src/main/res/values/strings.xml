@@ -8,5 +8,6 @@
     <string name="debit">Debit</string>
     <string name="voucher">Voucher</string>
     <string name="checkout">Checkout</string>
-    <string name="connectPINPad">connect PINPad</string>
+    <string name="connect_PINPad">connect PINPad</string>
+    <string name="refund">Refund</string>
 </resources>
