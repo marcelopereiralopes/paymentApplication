@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity(), MainView {
                 bondedDevices.elementAt(0).address, true
             )
         }
-
         checkout.setOnClickListener {
             val amount = if (value.text.toString() == "") 0 else value.text.toString().toLong()
 
@@ -63,7 +62,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
                     val provider = TransactionProvider(
                         this, createTransactionObject(typeOfTransactionEnum, amount),
-                        (AppStore.instance["USER_LIST"] as List<UserModel>?)?.get(0), it
+                        (AppStore["USER_LIST"] as List<UserModel>?)?.get(0), it
                     )
 
                     mainPresenter.checkout(

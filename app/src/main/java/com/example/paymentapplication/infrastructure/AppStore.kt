@@ -2,7 +2,7 @@ package com.example.paymentapplication.infrastructure
 
 import java.util.HashMap
 
-class AppStore {
+object AppStore {
 
     private val session = HashMap<Any, Any>()
 
@@ -20,9 +20,5 @@ class AppStore {
 
     fun recycle() {
         session.clear()
-    }
-
-    companion object {
-        val instance = AppStore()
     }
 }
