@@ -28,7 +28,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
 
         Stone.setEnvironment(SANDBOX)
         Stone.setAppName(getString(R.string.app_name))
-        AppStore["USER_LIST"] = StoneStart.init(this)
+        StoneStart.init(this)
 
         AppStore["USER_LIST"]?.let {
             applicationActivatedNextStep()

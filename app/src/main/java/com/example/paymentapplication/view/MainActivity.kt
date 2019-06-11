@@ -23,6 +23,7 @@ import stone.providers.SendEmailTransactionProvider
 import stone.providers.TransactionProvider
 import stone.user.UserModel
 import stone.utils.PinpadObject
+import stone.utils.Stone
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MainView {
@@ -38,42 +39,9 @@ class MainActivity : AppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        val bondedDevices = bluetoothAdapter.bondedDevices
-        if (bondedDevices.isNotEmpty()) {
-            pinpadObject = PinpadObject(
-                "PAX-6A802929",
-                bondedDevices.elementAt(0).address, true
-            )
-        }
-        checkout.setOnClickListener {
-            val amount = if (value.text.toString() == "") 0 else value.text.toString().toLong()
+        if (Stone.getPinpadObjectList().isNotEmpty()) pinpadObject = Stone.getPinpadObjectList()[0]
 
-            if (amount > 0) {
-                pinpadObject?.let {
-                    val typeOfTransactionEnum = when (radioGroup.checkedRadioButtonId) {
-                        R.id.radioButtonCredit -> TypeOfTransactionEnum.CREDIT
-                        R.id.radioButtonDebit -> TypeOfTransactionEnum.DEBIT
-                        R.id.radioButtonVoucher -> TypeOfTransactionEnum.VOUCHER
-                        else -> throw IllegalArgumentException()
-                    }
-
-                    transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
-
-                    val provider = TransactionProvider(
-                        this, createTransactionObject(typeOfTransactionEnum, amount),
-                        (AppStore["USER_LIST"] as List<UserModel>?)?.get(0), it
-                    )
-
-                    mainPresenter.checkout(
-                        amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
-                        provider = provider
-                    )
-                } ?: showMessage("Pair your PINPad with your mobile phone")
-            } else {
-                showMessage("Invalid input value.")
-            }
-        }
+        checkoutListener()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -87,6 +55,17 @@ class MainActivity : AppCompatActivity(), MainView {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item.itemId == R.id.connectId) {
+
+            if (pinpadObject == null) {
+                val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+                val bondedDevices = bluetoothAdapter.bondedDevices
+                if (bondedDevices.isNotEmpty()) {
+                    pinpadObject = PinpadObject(
+                        "PAX-6A802929",
+                        bondedDevices.elementAt(0).address, true
+                    )
+                }
+            }
             mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinpadObject))
         } else {
             throw IllegalArgumentException()
@@ -125,6 +104,37 @@ class MainActivity : AppCompatActivity(), MainView {
             .setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, _ -> dialogInterface.cancel() })
             .create()
             .show()
+    }
+
+    private fun checkoutListener() {
+        checkout.setOnClickListener {
+            val amount = if (value.text.toString() == "") 0 else value.text.toString().toLong()
+
+            if (amount > 0) {
+                pinpadObject?.let {
+                    val typeOfTransactionEnum = when (radioGroup.checkedRadioButtonId) {
+                        R.id.radioButtonCredit -> TypeOfTransactionEnum.CREDIT
+                        R.id.radioButtonDebit -> TypeOfTransactionEnum.DEBIT
+                        R.id.radioButtonVoucher -> TypeOfTransactionEnum.VOUCHER
+                        else -> throw IllegalArgumentException()
+                    }
+
+                    transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
+
+                    val provider = TransactionProvider(
+                        this, createTransactionObject(typeOfTransactionEnum, amount),
+                        (AppStore["USER_LIST"] as List<UserModel>?)?.get(0), it
+                    )
+
+                    mainPresenter.checkout(
+                        amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
+                        provider = provider
+                    )
+                } ?: showMessage("Connect your PINPad with your mobile phone")
+            } else {
+                showMessage("Invalid input value.")
+            }
+        }
     }
 
     private fun createTransactionObject(typeOfTransactionEnum: TypeOfTransactionEnum, amount: Long): TransactionObject {
