@@ -13,7 +13,7 @@
             android:checkedButton="@id/radioButtonCredit"
             android:id="@+id/radioGroup" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/amount"
+            app:layout_constraintTop_toBottomOf="@+id/value"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
             android:gravity="center">
         <RadioButton
@@ -35,7 +35,7 @@
             android:inputType="numberDecimal"
             android:ems="10"
             android:hint="@string/hint_start_value"
-            android:id="@+id/amount"
+            android:id="@+id/value"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:textAlignment="textEnd"
@@ -57,6 +57,7 @@
             android:layout_height="0dp"
             android:id="@+id/progressBar"
             android:visibility="gone"
+            android:background="@color/translucent"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"

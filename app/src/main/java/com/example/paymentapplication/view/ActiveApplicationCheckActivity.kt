@@ -11,10 +11,9 @@ import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenter
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenterImpl
 import kotlinx.android.synthetic.main.activity_active_application_check.*
 import stone.application.StoneStart
-import stone.providers.ActiveApplicationProvider
-import stone.user.UserModel
-import stone.utils.Stone
 import stone.environment.Environment.SANDBOX
+import stone.providers.ActiveApplicationProvider
+import stone.utils.Stone
 
 class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationCheckView {
 
@@ -23,12 +22,11 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
         ActiveApplicationCheckPresenterImpl(this)
     }
 
-    private var userList: List<UserModel>? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_active_application_check)
-        userList = StoneStart.init(this)
+
+        val userList = StoneStart.init(this)
         Stone.setEnvironment(SANDBOX)
         Stone.setAppName(getString(R.string.app_name))
 
@@ -60,7 +58,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
     }
 
     override fun applicationActivatedNextStep() {
-        AppStore.map["USER_LIST"] = userList
+        AppStore.instance["USER_LIST"] = StoneStart.init(this)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
