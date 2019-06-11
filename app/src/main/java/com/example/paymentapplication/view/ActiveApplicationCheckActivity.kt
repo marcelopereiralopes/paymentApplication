@@ -26,13 +26,16 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_active_application_check)
 
-        val userList = StoneStart.init(this)
-        Stone.setEnvironment(SANDBOX)
-        Stone.setAppName(getString(R.string.app_name))
+        val userList = AppStore.instance["USER_LIST"]
 
-        userList?.let {
+        if (userList != null){
             applicationActivatedNextStep()
-        } ?: activeApplicationCheckPresenter.activeInvoke(ActiveApplicationProvider(this))
+        } else {
+            Stone.setEnvironment(SANDBOX)
+            Stone.setAppName(getString(R.string.app_name))
+            StoneStart.init(this)
+            activeApplicationCheckPresenter.activeInvoke(ActiveApplicationProvider(this))
+        }
     }
 
     override fun showProgress() {
@@ -45,6 +48,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
         withProgress: Boolean,
         withNextStep: () -> Unit
     ) {
+        AppStore.instance["USER_LIST"] = StoneStart.init(this)
         showMessage(msg, withProgress)
         Handler().postDelayed({
             withNextStep()
@@ -58,7 +62,6 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
     }
 
     override fun applicationActivatedNextStep() {
-        AppStore.instance["USER_LIST"] = StoneStart.init(this)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }

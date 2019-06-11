@@ -56,8 +56,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
                     val provider = TransactionProvider(
                         this, createTransactionObject(typeOfTransactionEnum, amount),
-                        (AppStore.instance["USER_LIST"] as List<UserModel>?)?.get(0), pinpadObject
-                    )
+                        (AppStore.instance["USER_LIST"] as List<UserModel>?)?.get(0), it)
 
                     mainPresenter.checkout(
                         amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,

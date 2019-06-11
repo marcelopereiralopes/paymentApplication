@@ -16,13 +16,12 @@ class MainPresenterImpl(override var view: MainView?) : MainPresenter<MainView> 
         transactionProvider.connectionCallback = object : StoneCallbackInterface {
             override fun onSuccess() {
                 view?.dimissProgress()
-                view?.showMessage("SUCESSO")
+                view?.showMessage("Payment Success")
             }
 
             override fun onError() {
-                val error = transactionProvider.listOfErrors
                 view?.dimissProgress()
-                view?.showMessage("ERROR")
+                view?.showMessage("Payment Error")
             }
         }
 
