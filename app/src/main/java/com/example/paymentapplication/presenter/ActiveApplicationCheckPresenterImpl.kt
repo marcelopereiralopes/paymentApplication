@@ -8,8 +8,8 @@ class ActiveApplicationCheckPresenterImpl(
     override var view: ActiveApplicationCheckView?
 ) : ActiveApplicationCheckPresenter<ActiveApplicationCheckView> {
 
-    override fun activeInvoke(activeApplicationProvider: ActiveApplicationProvider) {
-        activeApplicationProvider.connectionCallback = object : StoneCallbackInterface {
+    override fun activeInvoke(provider: ActiveApplicationProvider) {
+        provider.connectionCallback = object : StoneCallbackInterface {
             override fun onSuccess() {
                 view?.showMessageSuccessAndNextStep(
                     "Ativado com sucesso, \niniciando o aplicativo.",
@@ -17,11 +17,11 @@ class ActiveApplicationCheckPresenterImpl(
             }
 
             override fun onError() {
-                val cause = activeApplicationProvider.listOfErrors[0]
+                val cause = provider.listOfErrors[0]
                 view?.showMessage("Erro na ativação do aplicativo.\n$cause")
             }
         }
 
-        activeApplicationProvider.activate("846873720")
+        provider.activate("846873720")
     }
 }
