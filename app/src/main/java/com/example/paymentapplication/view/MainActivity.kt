@@ -57,15 +57,16 @@ class MainActivity : AppCompatActivity(), MainView {
 
         when {
             item.itemId == R.id.connectId -> {
-
                 if (pinpadObject == null) {
                     val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                    val bondedDevices = bluetoothAdapter.bondedDevices
-                    if (bondedDevices.isNotEmpty()) {
-                        pinpadObject = PinpadObject(
-                            "PAX-6A802929",
-                            bondedDevices.elementAt(0).address, true
-                        )
+                    val bondedDevices = bluetoothAdapter?.bondedDevices
+
+                    if (bondedDevices != null && bondedDevices.isNotEmpty()) {
+                        pinpadObject = PinpadObject("PAX-6A802929",
+                            bondedDevices.elementAt(0).address, true)
+                    } else {
+                        showMessage("Pair your PINPad with mobile phone")
+                        return true
                     }
                 }
                 mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinpadObject))
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     override fun showReceiptOptions() {
-        showAlertDialog("Do you want send receipt?", "Receipt"){
+        showAlertDialog("Do you want send receipt?", "Receipt") {
             receiptEmailClickListener()
         }
     }
@@ -163,7 +164,7 @@ class MainActivity : AppCompatActivity(), MainView {
                         amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
                         provider = provider
                     )
-                } ?: showMessage("Connect your PINPad with your mobile phone")
+                } ?: showMessage("Connect your PINPad with mobile phone")
             } else {
                 showMessage("Invalid input value.")
             }
