@@ -5,10 +5,10 @@
       tools:context=
               ".view.MainActivity">
     <item
-            android:id="@+id/connectId"
+            android:id="@+id/receiptEmailId"
             android:orderInCategory="1"
             app:showAsAction="never"
-            android:title="@string/connect_PINPad"/>
+            android:title="@string/receipt_email"/>
     <item
             android:id="@+id/refundId"
             android:orderInCategory="1"

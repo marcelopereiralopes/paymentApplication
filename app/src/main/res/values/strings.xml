@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">Payment Application</string>
     <string name="title_activity_active_application_check">ActiveApplicationCheckActivity</string>
-    <string name="active_app_text">Ativando o aplicativo.</string>
+    <string name="active_app_text">Activating the application</string>
     <string name="hint_start_value">0,00</string>
     <string name="payment">Payment</string>
     <string name="credit">Credit</string>
     <string name="debit">Debit</string>
     <string name="voucher">Voucher</string>
     <string name="checkout">Checkout</string>
-    <string name="connect_PINPad">connect PINPad</string>
+    <string name="receipt_email">Receipt by email</string>
     <string name="refund">Refund</string>
 </resources>

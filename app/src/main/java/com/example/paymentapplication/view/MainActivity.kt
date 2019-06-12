@@ -1,6 +1,5 @@
 package com.example.paymentapplication.view
 
-import android.bluetooth.BluetoothAdapter
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Menu
@@ -9,6 +8,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import br.com.stone.posandroid.providers.PosPrintReceiptProvider
+import br.com.stone.posandroid.providers.PosTransactionProvider
 import com.example.paymentapplication.R
 import com.example.paymentapplication.infrastructure.AppStore
 import com.example.paymentapplication.infrastructure.DispatcherProviderImpl
@@ -16,14 +17,11 @@ import com.example.paymentapplication.presenter.MainPresenter
 import com.example.paymentapplication.presenter.MainPresenterImpl
 import kotlinx.android.synthetic.main.activity_main.*
 import stone.application.enums.InstalmentTransactionEnum
+import stone.application.enums.ReceiptType
 import stone.application.enums.TypeOfTransactionEnum
 import stone.database.transaction.TransactionObject
-import stone.providers.BluetoothConnectionProvider
 import stone.providers.CancellationProvider
 import stone.providers.SendEmailTransactionProvider
-import stone.providers.TransactionProvider
-import stone.user.UserModel
-import stone.utils.PinpadObject
 import stone.utils.Stone
 import java.util.*
 
@@ -33,15 +31,11 @@ class MainActivity : AppCompatActivity(), MainView {
         MainPresenterImpl(this, DispatcherProviderImpl())
     }
 
-    private var pinpadObject: PinpadObject? = null
     private var transactionObject: TransactionObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (Stone.getPinpadObjectList().isNotEmpty()) pinpadObject = Stone.getPinpadObjectList()[0]
-
         checkoutListener()
     }
 
@@ -56,22 +50,6 @@ class MainActivity : AppCompatActivity(), MainView {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when {
-            item.itemId == R.id.connectId -> {
-                if (pinpadObject == null) {
-                    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                    val bondedDevices = bluetoothAdapter?.bondedDevices
-
-                    if (bondedDevices != null && bondedDevices.isNotEmpty()) {
-                        pinpadObject = PinpadObject("PAX-6A802929",
-                            bondedDevices.elementAt(0).address, true)
-                    } else {
-                        showMessage("Pair your PINPad with mobile phone")
-                        return true
-                    }
-                }
-                mainPresenter.connectPINPad(BluetoothConnectionProvider(this, pinpadObject))
-            }
-
             item.itemId == R.id.refundId -> {
                 AppStore["TRANSACTION_OBJECT"]?.let {
                     showAlertDialog(
@@ -79,6 +57,17 @@ class MainActivity : AppCompatActivity(), MainView {
                         "Refund"
                     ) {
                         refundClickListener()
+                    }
+                } ?: showMessage("Not exist approved transaction.")
+            }
+
+            item.itemId == R.id.receiptEmailId -> {
+                AppStore["TRANSACTION_OBJECT"]?.let {
+                    showAlertDialog(
+                        "Do you want send receipt by email?",
+                        "Receipt"
+                    ) {
+                        receiptEmailClickListener()
                     }
                 } ?: showMessage("Not exist approved transaction.")
             }
@@ -118,18 +107,26 @@ class MainActivity : AppCompatActivity(), MainView {
             .show()
     }
 
-    override fun showReceiptOptions() {
-        showAlertDialog("Do you want send receipt?", "Receipt") {
-            receiptEmailClickListener()
+    override fun showReceiptPrintOptions() {
+        AppStore["TRANSACTION_OBJECT"] = transactionObject!!
+        showAlertDialog("Do you want print receipt?", "Receipt") {
+            receiptPrintClickListener()
         }
     }
 
-    private fun receiptEmailClickListener() {
-        val sendEmailTransactionProvider = SendEmailTransactionProvider(
+    private fun receiptPrintClickListener() {
+        val posPrintReceiptProvider = PosPrintReceiptProvider(
             this,
-            AppStore["TRANSACTION_OBJECT"] as TransactionObject
+            AppStore["TRANSACTION_OBJECT"] as TransactionObject,
+            ReceiptType.MERCHANT
         )
-        mainPresenter.sendReceiptByEmail(sendEmailTransactionProvider)
+        mainPresenter.printReceipt(posPrintReceiptProvider)
+    }
+
+    private fun receiptEmailClickListener() {
+        val emailTransactionProvider = SendEmailTransactionProvider(this,
+            AppStore["TRANSACTION_OBJECT"] as TransactionObject)
+        mainPresenter.sendReceiptByEmail(emailTransactionProvider)
     }
 
     private fun refundClickListener() {
@@ -145,7 +142,6 @@ class MainActivity : AppCompatActivity(), MainView {
             val amount = if (value.text.toString() == "") 0 else value.text.toString().toLong()
 
             if (amount > 0) {
-                pinpadObject?.let {
                     val typeOfTransactionEnum = when (radioGroup.checkedRadioButtonId) {
                         R.id.radioButtonCredit -> TypeOfTransactionEnum.CREDIT
                         R.id.radioButtonDebit -> TypeOfTransactionEnum.DEBIT
@@ -155,16 +151,12 @@ class MainActivity : AppCompatActivity(), MainView {
 
                     transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
 
-                    val provider = TransactionProvider(
-                        this, createTransactionObject(typeOfTransactionEnum, amount),
-                        (AppStore["USER_LIST"] as List<UserModel>?)?.get(0), it
-                    )
+                    val provider = PosTransactionProvider(this, transactionObject, Stone.getUserModel(0))
 
                     mainPresenter.checkout(
                         amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
                         provider = provider
                     )
-                } ?: showMessage("Connect your PINPad with mobile phone")
             } else {
                 showMessage("Invalid input value.")
             }
