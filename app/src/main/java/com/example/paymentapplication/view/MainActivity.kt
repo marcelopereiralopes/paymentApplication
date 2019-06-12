@@ -80,8 +80,7 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     override fun showProgress() {
-        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(primary.windowToken, 0)
+        hideKeyboard()
         primary.visibility = View.GONE
         secondary.visibility = View.VISIBLE
     }
@@ -115,6 +114,11 @@ class MainActivity : AppCompatActivity(), MainView {
         showAlertDialog("Do you want print receipt?", "Transaction Approved") {
             receiptPrintClickListener()
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(primary.windowToken, 0)
     }
 
     private fun receiptPrintClickListener() {
