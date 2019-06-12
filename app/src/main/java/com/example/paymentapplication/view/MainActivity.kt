@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity(), MainView {
                     ) {
                         refundClickListener()
                     }
-                } ?: showMessage("Not exist approved transaction.")
+                } ?: showToastMessage("Not exist approved transaction.")
             }
 
             item.itemId == R.id.receiptEmailId -> {
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity(), MainView {
                     ) {
                         receiptEmailClickListener()
                     }
-                } ?: showMessage("Not exist approved transaction.")
+                } ?: showToastMessage("Not exist approved transaction.")
             }
 
             else -> throw IllegalArgumentException()
@@ -79,21 +80,23 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     override fun showProgress() {
-        checkout.isEnabled = false
-        radioGroup.isEnabled = false
-        value.isEnabled = false
-        progressBar.visibility = View.VISIBLE
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(primary.windowToken, 0)
+        primary.visibility = View.GONE
+        secondary.visibility = View.VISIBLE
     }
 
     override fun dismissProgress() {
-        checkout.isEnabled = true
-        radioGroup.isEnabled = true
-        value.isEnabled = true
-        progressBar.visibility = View.GONE
+        primary.visibility = View.VISIBLE
+        secondary.visibility = View.GONE
+    }
+
+    override fun showToastMessage(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun showMessage(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        textView.text = msg
     }
 
     override fun showAlertDialog(message: String, title: String, positiveButton: () -> Unit) {
@@ -109,7 +112,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun showReceiptPrintOptions() {
         AppStore["TRANSACTION_OBJECT"] = transactionObject!!
-        showAlertDialog("Do you want print receipt?", "Receipt") {
+        showAlertDialog("Do you want print receipt?", "Transaction Approved") {
             receiptPrintClickListener()
         }
     }
@@ -158,7 +161,7 @@ class MainActivity : AppCompatActivity(), MainView {
                         provider = provider
                     )
             } else {
-                showMessage("Invalid input value.")
+                showToastMessage("Invalid input value.")
             }
         }
     }
