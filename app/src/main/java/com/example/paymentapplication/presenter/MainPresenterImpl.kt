@@ -2,6 +2,7 @@ package com.example.paymentapplication.presenter
 
 import br.com.stone.posandroid.providers.PosPrintReceiptProvider
 import br.com.stone.posandroid.providers.PosTransactionProvider
+import com.example.paymentapplication.infrastructure.AppStore
 import com.example.paymentapplication.infrastructure.DispatcherProvider
 import com.example.paymentapplication.view.MainView
 import kotlinx.coroutines.CoroutineScope
@@ -64,6 +65,7 @@ class MainPresenterImpl(
         provider.useDefaultUI(false)
         provider.connectionCallback = object : StoneCallbackInterface {
             override fun onSuccess() {
+                AppStore.remove("TRANSACTION_OBJECT")
                 myScope.launch {
                     view?.dismissProgress()
                     view?.showToastMessage("Transaction refund success.")

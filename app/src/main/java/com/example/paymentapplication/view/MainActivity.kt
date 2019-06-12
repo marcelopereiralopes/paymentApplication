@@ -127,8 +127,10 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     private fun receiptEmailClickListener() {
-        val emailTransactionProvider = SendEmailTransactionProvider(this,
-            AppStore["TRANSACTION_OBJECT"] as TransactionObject)
+        val emailTransactionProvider = SendEmailTransactionProvider(
+            this,
+            AppStore["TRANSACTION_OBJECT"] as TransactionObject
+        )
         mainPresenter.sendReceiptByEmail(emailTransactionProvider)
     }
 
@@ -145,21 +147,21 @@ class MainActivity : AppCompatActivity(), MainView {
             val amount = if (value.text.toString() == "") 0 else value.text.toString().toLong()
 
             if (amount > 0) {
-                    val typeOfTransactionEnum = when (radioGroup.checkedRadioButtonId) {
-                        R.id.radioButtonCredit -> TypeOfTransactionEnum.CREDIT
-                        R.id.radioButtonDebit -> TypeOfTransactionEnum.DEBIT
-                        R.id.radioButtonVoucher -> TypeOfTransactionEnum.VOUCHER
-                        else -> throw IllegalArgumentException()
-                    }
+                val typeOfTransactionEnum = when (radioGroup.checkedRadioButtonId) {
+                    R.id.radioButtonCredit -> TypeOfTransactionEnum.CREDIT
+                    R.id.radioButtonDebit -> TypeOfTransactionEnum.DEBIT
+                    R.id.radioButtonVoucher -> TypeOfTransactionEnum.VOUCHER
+                    else -> throw IllegalArgumentException()
+                }
 
-                    transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
+                transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
 
-                    val provider = PosTransactionProvider(this, transactionObject, Stone.getUserModel(0))
+                val provider = PosTransactionProvider(this, transactionObject, Stone.getUserModel(0))
 
-                    mainPresenter.checkout(
-                        amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
-                        provider = provider
-                    )
+                mainPresenter.checkout(
+                    amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
+                    provider = provider
+                )
             } else {
                 showToastMessage("Invalid input value.")
             }
