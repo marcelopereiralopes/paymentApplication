@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.paymentapplication.R
 import com.example.paymentapplication.infrastructure.AppStore
+import com.example.paymentapplication.infrastructure.DispatcherProviderImpl
 import com.example.paymentapplication.presenter.MainPresenter
 import com.example.paymentapplication.presenter.MainPresenterImpl
 import kotlinx.android.synthetic.main.activity_main.*
@@ -29,7 +30,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(), MainView {
 
     private val mainPresenter: MainPresenter<MainView> by lazy {
-        MainPresenterImpl(this)
+        MainPresenterImpl(this, DispatcherProviderImpl())
     }
 
     private var pinpadObject: PinpadObject? = null

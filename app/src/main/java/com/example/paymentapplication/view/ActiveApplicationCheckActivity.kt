@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.paymentapplication.R
 import com.example.paymentapplication.infrastructure.AppStore
+import com.example.paymentapplication.infrastructure.DispatcherProviderImpl
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenter
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenterImpl
 import kotlinx.android.synthetic.main.activity_active_application_check.*
@@ -19,7 +20,7 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
 
     private val activeApplicationCheckPresenter:
             ActiveApplicationCheckPresenter<ActiveApplicationCheckView> by lazy {
-        ActiveApplicationCheckPresenterImpl(this)
+        ActiveApplicationCheckPresenterImpl(this, DispatcherProviderImpl())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
