@@ -33,7 +33,10 @@ class MainPresenterImpl(
         provider.connectionCallback = object : StoneActionCallback {
             override fun onSuccess() {
                 myScope.launch {
-                    if (provider.transactionStatus != TransactionStatusEnum.APPROVED)
+                    view?.dismissProgress()
+                    if (provider.transactionStatus == TransactionStatusEnum.APPROVED)
+                        view?.showReceiptPrintOptions()
+                    else
                         view?.showToastMessage(provider.transactionStatus.toString())
                 }
             }
@@ -41,18 +44,13 @@ class MainPresenterImpl(
             override fun onError() {
                 myScope.launch {
                     view?.dismissProgress()
-                    view?.showToastMessage(provider.transactionStatus.toString())
+                    provider.listOfErrors?.get(0)?.toString()?.let { view?.showToastMessage(it) }
                 }
             }
 
             override fun onStatusChanged(p0: Action?) {
                 myScope.launch {
                     view?.showMessage(translateStatusMessage(p0.toString()))
-                    if (p0.toString() == "TRANSACTION_CARD_REMOVED"
-                        && provider.transactionStatus == TransactionStatusEnum.APPROVED){
-                        view?.dismissProgress()
-                        view?.showReceiptPrintOptions()
-                    }
                 }
             }
         }
@@ -129,7 +127,7 @@ class MainPresenterImpl(
     }
 
     fun translateStatusMessage(message: String): String {
-        return when(message){
+        return when (message) {
             "TRANSACTION_WAITING_CARD" -> "Insert or pass the card"
             "TRANSACTION_WAITING_PASSWORD" -> "Insert password"
             "TRANSACTION_SENDING" -> "Sending transaction"

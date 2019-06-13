@@ -36,16 +36,17 @@
                     android:layout_weight="1"/>
         </RadioGroup>
         <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="62dp"
+                android:layout_width="342dp"
+                android:layout_height="64dp"
                 android:inputType="numberDecimal"
                 android:ems="10"
                 android:hint="@string/hint_start_value"
                 android:id="@+id/value"
+                android:background="@null"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:textAlignment="textEnd"
-                android:textSize="30sp" android:selectAllOnFocus="true"
+                android:layout_marginStart="8dp" android:layout_marginEnd="32dp" android:textAlignment="textEnd"
+                android:textSize="50sp" android:selectAllOnFocus="true"
                 android:gravity="end"
                 app:layout_constraintBottom_toTopOf="@+id/radioGroup"/>
         <com.google.android.material.button.MaterialButton
