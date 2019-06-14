@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content" android:id="@+id/radioButtonVoucher"
                     android:layout_weight="1"/>
         </RadioGroup>
-        <EditText
+        <faranjit.currency.edittext.CurrencyEditText
                 android:layout_width="342dp"
                 android:layout_height="64dp"
                 android:inputType="numberDecimal"
@@ -43,10 +43,11 @@
                 android:hint="@string/hint_start_value"
                 android:id="@+id/value"
                 android:background="@null"
+                app:locale="pt_BR"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="8dp" android:layout_marginEnd="32dp" android:textAlignment="textEnd"
-                android:textSize="50sp" android:selectAllOnFocus="true"
+                android:textSize="50sp" android:selectAllOnFocus="false"
                 android:gravity="end"
                 app:layout_constraintBottom_toTopOf="@+id/radioGroup"/>
         <com.google.android.material.button.MaterialButton

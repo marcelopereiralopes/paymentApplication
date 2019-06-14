@@ -2,13 +2,10 @@ package com.example.paymentapplication.view
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +24,6 @@ import stone.database.transaction.TransactionObject
 import stone.providers.CancellationProvider
 import stone.providers.SendEmailTransactionProvider
 import stone.utils.Stone
-import java.text.NumberFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MainView {
@@ -41,7 +37,6 @@ class MainActivity : AppCompatActivity(), MainView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        applyMoneyMask(value)
         checkoutListener()
     }
 
@@ -111,7 +106,8 @@ class MainActivity : AppCompatActivity(), MainView {
             .setTitle(title)
             .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ -> positiveButton() })
             .setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, _ ->
-                dialogInterface.cancel() })
+                dialogInterface.cancel()
+            })
             .create()
             .show()
     }
@@ -200,35 +196,6 @@ class MainActivity : AppCompatActivity(), MainView {
         return transactionObject
     }
 
-    private fun applyMoneyMask(inputValue: EditText?) {
-        var current = ""
+    private fun clearCurrencyFormatter(value: String) = value.replace("[,.]".toRegex(), "")
 
-        inputValue?.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(p0: Editable?) {}
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (p0.toString() != current) {
-                    inputValue.removeTextChangedListener(this)
-
-                    val cleanString = clearCurrencyFormatter(p0.toString())
-
-                    val parsed = cleanString.toDouble()
-                    val formatted = NumberFormat
-                        .getCurrencyInstance(Locale("pt", "BR")).format((parsed / 100))
-
-                    current = formatted
-                    inputValue.setText(formatted)
-                    inputValue.setSelection(formatted.length)
-
-                    inputValue.addTextChangedListener(this)
-                }
-            }
-
-        })
-    }
-
-    private fun clearCurrencyFormatter(value: String) = value.replace("[R$,.]".toRegex(), "")
 }
