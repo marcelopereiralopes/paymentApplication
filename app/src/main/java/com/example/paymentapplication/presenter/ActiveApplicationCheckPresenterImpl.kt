@@ -14,23 +14,25 @@ class ActiveApplicationCheckPresenterImpl(
 
     private val myScope = CoroutineScope(dispatcherProvider.main)
 
-    override fun activeInvoke(provider: ActiveApplicationProvider) {
+    override fun activeInvoke(stoneCode: String, provider: ActiveApplicationProvider) {
+
+        view?.showProgress()
+
         provider.connectionCallback = object : StoneCallbackInterface {
             override fun onSuccess() {
                 myScope.launch {
-                    view?.showMessageSuccessAndNextStep(
-                        "Successfully activated,\nstarting the application.",
-                        withNextStep = { view?.applicationActivatedNextStep() })
+                    view?.applicationActivatedNextStep()
                 }
             }
 
             override fun onError() {
                 val cause = provider.listOfErrors[0]
                 myScope.launch {
-                    view?.showMessage("Application activation error.\n$cause")
+                    view?.dismissProgress()
                 }
             }
         }
-        provider.activate("192489630")
+
+        provider.activate(stoneCode)
     }
 }

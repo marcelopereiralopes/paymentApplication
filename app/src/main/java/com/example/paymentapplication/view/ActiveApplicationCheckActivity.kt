@@ -2,11 +2,11 @@ package com.example.paymentapplication.view
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.paymentapplication.R
-import com.example.paymentapplication.infrastructure.AppStore
 import com.example.paymentapplication.infrastructure.DispatcherProviderImpl
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenter
 import com.example.paymentapplication.presenter.ActiveApplicationCheckPresenterImpl
@@ -29,34 +29,51 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
 
         Stone.setEnvironment(SANDBOX)
         Stone.setAppName(getString(R.string.app_name))
-        StoneStart.init(this)
 
-        AppStore["USER_LIST"]?.let {
-            applicationActivatedNextStep()
-        }?: activeApplicationCheckPresenter.activeInvoke(ActiveApplicationProvider(this))
+        val users = StoneStart.init(this)
+
+        if (users != null && users.isNotEmpty()) applicationActivatedNextStep() else activateListener()
+
+    }
+
+    private fun activateListener() {
+        activate.setOnClickListener {
+
+            val code = stoneCode?.text?.toString() ?: ""
+
+            if (code.length < 9)
+                Toast.makeText(this, "Invalid StoneCode!", Toast.LENGTH_SHORT).show()
+            else
+                activeApplicationCheckPresenter.activeInvoke(
+                    code,
+                    ActiveApplicationProvider(this)
+                )
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(activate.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
     }
 
     override fun showProgress() {
+        hideKeyboard()
+        stoneCode.visibility = View.GONE
+        activate.visibility = View.GONE
         progress.visibility = View.VISIBLE
+        message.visibility = View.VISIBLE
     }
 
-    override fun showMessageSuccessAndNextStep(
-        msg: String,
-        time: Long,
-        withProgress: Boolean,
-        withNextStep: () -> Unit
-    ) {
-        AppStore["USER_LIST"] = StoneStart.init(this)
-        showMessage(msg, withProgress)
-        Handler().postDelayed({
-            withNextStep()
-        }, time)
-    }
-
-    override fun showMessage(msg: String, withProgress: Boolean) {
-        if (withProgress) progress.visibility = View.VISIBLE else progress.visibility = View.GONE
-        textView.visibility = View.VISIBLE
-        textView.text = msg
+    override fun dismissProgress() {
+        stoneCode.visibility = View.VISIBLE
+        activate.visibility = View.VISIBLE
+        progress.visibility = View.GONE
+        message.visibility = View.GONE
+        Toast.makeText(
+            this, "Could not possible with this stone code!",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun applicationActivatedNextStep() {

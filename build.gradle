@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.3.31'
-    ext.stone_sdk_version = '3.1.0-RC9'
+    ext.stone_sdk_version = '3.4.3'
     repositories {
         google()
         jcenter()
@@ -24,6 +24,7 @@ allprojects {
             maven { url "https://packagecloud.io/stone/sdk-android/maven2" }
             maven { url "https://packagecloud.io/stone/sdk-android-snapshot/maven2" }
             maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+            maven { url "https://packagecloud.io/Stone/pos-android-service-container/maven2" }
             google()
         }
     }
