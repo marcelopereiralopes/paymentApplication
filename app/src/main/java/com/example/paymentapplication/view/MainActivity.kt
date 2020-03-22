@@ -1,6 +1,5 @@
 package com.example.paymentapplication.view
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -26,6 +25,7 @@ import stone.providers.SendEmailTransactionProvider
 import stone.utils.Stone
 import java.util.*
 
+
 class MainActivity : AppCompatActivity(), MainView {
 
     private val mainPresenter: MainPresenter<MainView> by lazy {
@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        when {
-            item.itemId == R.id.refundId -> {
+        when (item.itemId) {
+            R.id.refundId -> {
                 AppStore["TRANSACTION_OBJECT"]?.let {
                     showAlertDialog(
                         "Do you want refund this vendor?\nValue: ${transactionObject?.amount}",
@@ -61,8 +61,7 @@ class MainActivity : AppCompatActivity(), MainView {
                     }
                 } ?: showToastMessage("Not exist approved transaction.")
             }
-
-            item.itemId == R.id.receiptEmailId -> {
+            R.id.receiptEmailId -> {
                 AppStore["TRANSACTION_OBJECT"]?.let {
                     showAlertDialog(
                         "Do you want send receipt by email?",
@@ -72,7 +71,6 @@ class MainActivity : AppCompatActivity(), MainView {
                     }
                 } ?: showToastMessage("Not exist approved transaction.")
             }
-
             else -> throw IllegalArgumentException()
         }
 
@@ -104,10 +102,12 @@ class MainActivity : AppCompatActivity(), MainView {
         dialogBuilder.setMessage(message)
             .setCancelable(true)
             .setTitle(title)
-            .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ -> positiveButton() })
-            .setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, _ ->
+            .setPositiveButton("Yes") { _, _ ->
+                positiveButton()
+            }
+            .setNegativeButton("No") { dialogInterface, _ ->
                 dialogInterface.cancel()
-            })
+            }
             .create()
             .show()
     }
@@ -117,6 +117,51 @@ class MainActivity : AppCompatActivity(), MainView {
         showAlertDialog("Do you want print receipt?", "Transaction Approved") {
             receiptPrintClickListener()
         }
+    }
+
+    private fun checkoutWithInstallments(amount: Long) {
+
+        val installments =
+            arrayOf("Cash Payment", "2 - Installments", "3 - Installments", "4 - Installments")
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Number of Installments:")
+
+        builder.setItems(installments) { _, which ->
+
+            when (which) {
+                0 -> {
+                    checkout(
+                        TypeOfTransactionEnum.CREDIT,
+                        InstalmentTransactionEnum.ONE_INSTALMENT,
+                        amount
+                    )
+                }
+                1 -> {
+                    checkout(
+                        TypeOfTransactionEnum.CREDIT,
+                        InstalmentTransactionEnum.TWO_INSTALMENT_NO_INTEREST,
+                        amount
+                    )
+                }
+                2 -> {
+                    checkout(
+                        TypeOfTransactionEnum.CREDIT,
+                        InstalmentTransactionEnum.THREE_INSTALMENT_NO_INTEREST,
+                        amount
+                    )
+                }
+                3 -> {
+                    checkout(
+                        TypeOfTransactionEnum.CREDIT,
+                        InstalmentTransactionEnum.FOUR_INSTALMENT_NO_INTEREST,
+                        amount
+                    )
+                }
+            }
+        }
+
+        builder.create().show()
     }
 
     private fun hideKeyboard() {
@@ -167,25 +212,47 @@ class MainActivity : AppCompatActivity(), MainView {
                     else -> throw IllegalArgumentException()
                 }
 
-                transactionObject = createTransactionObject(typeOfTransactionEnum, amount)
+                if (typeOfTransactionEnum == TypeOfTransactionEnum.CREDIT)
+                    checkoutWithInstallments(amount)
+                else
+                    checkout(
+                        typeOfTransactionEnum,
+                        InstalmentTransactionEnum.ONE_INSTALMENT,
+                        amount
+                    )
 
-                val provider = PosTransactionProvider(this, transactionObject, Stone.getUserModel(0))
-
-                mainPresenter.checkout(
-                    amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
-                    provider = provider
-                )
             } else {
                 showToastMessage("Invalid input value.")
             }
         }
     }
 
-    private fun createTransactionObject(typeOfTransactionEnum: TypeOfTransactionEnum, amount: Long): TransactionObject {
+    private fun checkout(
+        typeOfTransactionEnum: TypeOfTransactionEnum,
+        instalmentTransactionEnum: InstalmentTransactionEnum,
+        amount: Long
+    ) {
+        transactionObject =
+            createTransactionObject(typeOfTransactionEnum, instalmentTransactionEnum, amount)
+
+        val provider =
+            PosTransactionProvider(this, transactionObject, Stone.getUserModel(0))
+
+        mainPresenter.checkout(
+            amount = amount, typeOfTransactionEnum = typeOfTransactionEnum,
+            provider = provider
+        )
+    }
+
+    private fun createTransactionObject(
+        typeOfTransactionEnum: TypeOfTransactionEnum,
+        instalmentTransactionEnum: InstalmentTransactionEnum,
+        amount: Long
+    ): TransactionObject {
         val transactionObject = TransactionObject()
         transactionObject.amount = amount.toString()
         transactionObject.initiatorTransactionKey = UUID.randomUUID().toString()
-        transactionObject.instalmentTransaction = InstalmentTransactionEnum.ONE_INSTALMENT
+        transactionObject.instalmentTransaction = instalmentTransactionEnum
         transactionObject.typeOfTransaction = typeOfTransactionEnum
         transactionObject.isCapture = true
         transactionObject.subMerchantCity = "Rio"

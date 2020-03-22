@@ -36,27 +36,6 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
 
     }
 
-    private fun activateListener() {
-        activate.setOnClickListener {
-
-            val code = stoneCode?.text?.toString() ?: ""
-
-            if (code.length < 9)
-                Toast.makeText(this, "Invalid StoneCode!", Toast.LENGTH_SHORT).show()
-            else
-                activeApplicationCheckPresenter.activeInvoke(
-                    code,
-                    ActiveApplicationProvider(this)
-                )
-        }
-    }
-
-    private fun hideKeyboard() {
-        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(activate.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-
-    }
-
     override fun showProgress() {
         hideKeyboard()
         stoneCode.visibility = View.GONE
@@ -79,5 +58,25 @@ class ActiveApplicationCheckActivity : AppCompatActivity(), ActiveApplicationChe
     override fun applicationActivatedNextStep() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun activateListener() {
+        activate.setOnClickListener {
+
+            val code = stoneCode?.text?.toString() ?: ""
+
+            if (code.length < 9)
+                Toast.makeText(this, "Invalid StoneCode!", Toast.LENGTH_SHORT).show()
+            else
+                activeApplicationCheckPresenter.activeInvoke(
+                    code,
+                    ActiveApplicationProvider(this)
+                )
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(activate.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 }
